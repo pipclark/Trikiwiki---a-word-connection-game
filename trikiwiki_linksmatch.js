@@ -10,47 +10,26 @@ async function answerFetching() {
 async function tagFetching(word) {
     var url = `https://en.wikipedia.org/w/api.php?action=parse&format=json&origin=*&page=${word}`;
     var tags = []
-    var texts = []
-    var subtitles = []
-    var lists = []
-    var allWords = []
   
     const response = await fetch(url);
     json = await response.json();
-    html_code = json["parse"]["text"]["*"];
-    parser = new DOMParser();
-    html = parser.parseFromString(html_code, "text/html"); // this gets you a html document from the pure html
-    //var hrefs = html.querySelectorAll(".wikitable");
-    //console.log(json)
-    var links = html.getElementsByTagName('a'); // gets all the <a links which are hyperlinks
-    var texts = html.getElementsByTagName('p'); // gets all the words   
-    var subtitles = html.getElementsByTagName('span'); // gets all the sub titles i think            
-    var lists = html.getElementsByTagName('li'); // gets all the listed items            
-    for(var i=0, max=links.length; i<max; i++) {
-        tags.push(links[i].innerHTML); // gets the highlighted word/phrase to you can click on on the page
-    }
-    for(var i=0, max=texts.length; i<max; i++) {
-    tags.push(texts[i].innerHTML); // gets the highlighted word/phrase to you can click on on the page
-    }
-    for(var i=0, max=subtitles.length; i<max; i++) {
-        tags.push(subtitles[i].innerHTML); // gets the highlighted word/phrase to you can click on on the page
-        }
-    for(var i=0, max=lists.length; i<max; i++) {
-        tags.push(lists[i].innerHTML); // gets the highlighted word/phrase to you can click on on the page
-        }
-      //console.log(tags)
-      for(t in tags){
-          allWords.push(...tags[t].split(/(\s+)/));
-          }
-      
-      // remove anything starting with < or [ to exclude images and  citations and other unwanted references 
-      let remove = ['[', '<', ' ', '\n', 'the', 'and', 'a', 'is', 'of', 'href', '=', ':', 'edit', '1', '2', '.', 'refer', 'to', 'link', 'cite', 'sources', 'verification', 'improve this article', 'adding citations to reliable sources', 'news', 'newspapers', 'books', 'scholar', 'JSTOR', 'Learn how and when to remove this template message', 'ISBN', '^','Authority control', 'Integrated Authority File (Germany)', '(data)','ISSN','Wayback Machine','Archived']
-      for(const r in remove) {
-      allWords = arrayRemove(allWords,remove[r]); // r is index
+      html_code = json["parse"]["text"]["*"];
+      parser = new DOMParser();
+      html = parser.parseFromString(html_code, "text/html"); // this gets you a html document from the pure html
+      //var hrefs = html.querySelectorAll(".wikitable");
+      //console.log(json)
+      var links = html.getElementsByTagName('a'); // gets all the <a links which are hyperlinks            
+      for(var i=0, max=links.length; i<max; i++) {
+          tags.push(links[i].innerHTML); // gets the highlighted word/phrase to you can click on on the page
       }
-      //console.log(allWords)
-      console.log('wikipedia words recieved')
-      return allWords; // define the thing to be returned in the top level of the function and return in it too ;)
+      // remove anything starting with < or [ to exclude images and  citations and other unwanted references 
+      let remove = ['[', '<', 'edit', 'verification', 'improve this article', 'adding citations to reliable sources', 'news', 'newspapers', 'books', 'scholar', 'JSTOR', 'Learn how and when to remove this template message', 'ISBN', '^','Authority control', 'Integrated Authority File (Germany)', '(data)','ISSN','Wayback Machine','Archived']
+      for(const r in remove) {
+      tags = arrayRemove(tags,remove[r]); // r is index
+      }
+      //console.log(tags)
+      console.log('wikipedia tags recieved')
+      return tags; // define the thing to be returned in the top level of the function and return in it too ;)
   }
   
   
@@ -66,7 +45,7 @@ async function tagFetching(word) {
       //finding matches referenced on both pages
       const filteredArray = array1.filter(value => array2.includes(value));
       console.log('tag matches found')
-      //console.log(filteredArray)
+      console.log(filteredArray)
       return filteredArray;
   }
   
