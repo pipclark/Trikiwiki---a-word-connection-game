@@ -83,10 +83,10 @@ async function tagFetching(word) {
   suggestions.innerHTML = html;
   }
 
-  async function guessing(guessInput,answertags,suggestions,answer) {
+  async function guessing(guessInput,answertags,suggestions,answer,trigger) {
     // first check if they got the answer and tell them if they did
     if(`${guessInput.value}`.localeCompare(`${answer}`, undefined, { sensitivity: 'base' }) == 0) {
-        const winner = [`That's right, you got the answer!`, `Today's answer was ${answer}`, 'Congratulations, come back tomorrow for more trikiwiki']
+        const winner = [`That's right, you got the answer!`, `The answer was ${answer}`, 'Congratulations, refresh the page for more trikiwiki']
         displayMatches(winner,suggestions);
         return;
     }
@@ -95,6 +95,7 @@ async function tagFetching(word) {
     matches = matches.filter(function(item, pos) { // getting rid of duplicates but keeping as an array
         return matches.indexOf(item) == pos;
     })
+    trigger.disabled = false;
     //console.log(matches)
     displayMatches(matches,suggestions)
   }
@@ -112,12 +113,14 @@ async function tagFetching(word) {
       //console.log(answertags)//.includes('Wine'));
   
       guessButton.addEventListener("click", async function(event) { // when hitting submit button
-            guessing(guessInput,answertags,suggestions,answer)
+        guessButton.disabled = true;
+            guessing(guessInput,answertags,suggestions,answer,guessButton)
       }); 
   
-      guessInput.addEventListener('keyup', function(event) { // when pressing enter
+      guessInput.addEventListener('keyup', async function(event) { // when pressing enter
       if(event.keyCode ==13) {
-            guessing(guessInput,answertags,suggestions,answer)
+            event.disabled = true;
+            guessing(guessInput,answertags,suggestions,answer,guessInput,event)
 
       }
       
