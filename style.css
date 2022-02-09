@@ -84,6 +84,7 @@ html {
     transform: perspective(100px) rotateX(-3deg) translateY(3px);
     background: linear-gradient(to top,  #ffffff 0%,#EFEFEF 100%);
   }
+
   
   span.population {
     font-size: 15px;
@@ -92,7 +93,19 @@ html {
   .hl {
     background: #ffc600;
   }
-  
+
+  .clue:hover {
+    cursor: pointer;
+  }
+
+  .clue win {
+    background: linear-gradient(to top,  #da7878 0%,#5a269c 100%);
+  }
+
+  .clue old {
+    background: linear-gradient(to top,  #da7878 0%,#5a269c 100%);
+  }
+
 @media screen and (max-width: 480px) {
     html {
       font-size: 1.5rem;

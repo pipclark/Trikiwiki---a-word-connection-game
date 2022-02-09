@@ -26,25 +26,31 @@ async function tagFetching(word) {
     var texts = html.getElementsByTagName('p'); // gets all the words   
     var subtitles = html.getElementsByTagName('span'); // gets all the sub titles i think            
     var lists = html.getElementsByTagName('li'); // gets all the listed items            
+    
+    // gets the highlighted word/phrase links you can click on on the page
     for(var i=0, max=links.length; i<max; i++) {
-        tags.push(links[i].innerHTML); // gets the highlighted word/phrase to you can click on on the page
+        tags.push(links[i].innerHTML); 
     }
-    for(var i=0, max=texts.length; i<max; i++) {
-    tags.push(texts[i].innerHTML); // gets the highlighted word/phrase to you can click on on the page
-    }
-    for(var i=0, max=subtitles.length; i<max; i++) {
-        tags.push(subtitles[i].innerHTML); // gets the highlighted word/phrase to you can click on on the page
-        }
-    for(var i=0, max=lists.length; i<max; i++) {
-        tags.push(lists[i].innerHTML); // gets the highlighted word/phrase to you can click on on the page
-        }
+    // gets all the main text content on the page
+    /*for(var i=0, max=texts.length; i<max; i++) {
+    tags.push(texts[i].innerHTML); 
+    }*/
+    // gets the subtitles from the page
+    /*for(var i=0, max=subtitles.length; i<max; i++) {
+        tags.push(subtitles[i].innerHTML); 
+        }*/
+    // gets all the list items on the page
+    /*for(var i=0, max=lists.length; i<max; i++) {
+        tags.push(lists[i].innerHTML); 
+        }*/
       //console.log(tags)
+      //split everything into individual words
       for(t in tags){
           allWords.push(...tags[t].split(/(\s+)/));
           }
       
       // remove anything starting with < or [ to exclude images and  citations and other unwanted references 
-      let remove = ['[', '<', ' ', '\n', 'the', 'and', 'a', 'is', 'of', 'href', '=', ':', 'edit', '1', '2', '.', 'refer', 'to', 'link', 'cite', 'sources', 'verification', 'improve this article', 'adding citations to reliable sources', 'news', 'newspapers', 'books', 'scholar', 'JSTOR', 'Learn how and when to remove this template message', 'ISBN', '^','Authority control', 'Integrated Authority File (Germany)', '(data)','ISSN','Wayback Machine','Archived']
+      let remove = ['[', '<', ' ', '\n', 'the', 'and', 'a', 'is', 'of', 'href', '=', ':', 'edit', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '.', 'refer', 'to', 'link', 'cite', 'sources', 'verification', 'improve this article', 'adding citations to reliable sources', 'news', 'newspapers', 'books', 'scholar', 'JSTOR', 'Learn how and when to remove this template message', 'ISBN', '^','Authority control', 'Integrated Authority File (Germany)', '(data)','ISSN','Wayback Machine','Archived']
       for(const r in remove) {
       allWords = arrayRemove(allWords,remove[r]); // r is index
       }
@@ -70,24 +76,37 @@ async function tagFetching(word) {
       return filteredArray;
   }
   
-  function displayMatches(matches, suggestions) {
-      const html = matches.map(clue => {
+  function displayMatches(matches, oldMatches, suggestions,guessInput) {
+      var html = matches.map(clue => {
       //const regex = new RegExp(this.value, 'gi');
       //const connection = clue.replace(regex, `<span class="hl">${this.value}</span>`);
       return `
-      <li>
-        <span class="name">${clue}</span>
+      <li class="clue" data-clue="${clue}"> 
+        ${clue} <span>(guess: ${guessInput.value})</span>
       </li>
         `;
-  }).join(''); // turns potential array of multiple items into one big string, which in this case gets rid a comma on a line between each place
+  }).join(''); // turns potential array of multiple items into one big string
+  //console.log(html)
+  
+    html += oldMatches.map(clue => {
+          return `
+          <li class="clue old" data-clue="${clue.word}"> 
+          ${clue.word} <span>(old guess: ${clue.guess})</span>
+        </li>
+          `;
+    }).join('');
+  //console.log(html)
   suggestions.innerHTML = html;
+  //console.log(matches)
   }
 
-  async function guessing(guessInput,answertags,suggestions,answer,trigger) {
+  async function guessing(guessInput,answertags,suggestions,answer,trigger,oldMatches) {
     // first check if they got the answer and tell them if they did
+    
     if(`${guessInput.value}`.localeCompare(`${answer}`, undefined, { sensitivity: 'base' }) == 0) {
         const winner = [`That's right, you got the answer!`, `The answer was ${answer}`, 'Congratulations, refresh the page for more trikiwiki']
-        displayMatches(winner,suggestions);
+        displayMatches(winner, [], suggestions, guessInput);
+        //do something here to change the css when you win? 
         return;
     }
     const guessTags = await tagFetching(guessInput.value)
@@ -97,7 +116,19 @@ async function tagFetching(word) {
     })
     trigger.disabled = false;
     //console.log(matches)
-    displayMatches(matches,suggestions)
+    displayMatches(matches,oldMatches,suggestions,guessInput)
+    // update the oldMatches with new after displaying and add the guess data
+    //first make a new array with key values for word and guess so that the guess can be remembered
+    const matches2 = matches.map(match => {
+        return {word: match, guess: guessInput.value};
+    });
+    
+    oldMatches.push(...matches2); 
+    // this needs changing to make it filter out duplicates now. Right now it just sticks them at the end of the list.
+    oldMatches = oldMatches.filter(function(item, pos) { // getting rid of duplicates but keeping as an array
+        return oldMatches.indexOf(item.word) == pos.word;
+    })
+    //console.log(oldMatches, oldMatches[0].guess);
   }
 
   
@@ -106,26 +137,44 @@ async function tagFetching(word) {
       //console.log(answer)
       const guessInput = document.querySelector('.guess');
       const guessButton = document.getElementById('guessButton');
-      const suggestions = document.querySelector('.suggestions')
+      const suggestions = document.querySelector('.suggestions');
+      var clues = document.getElementsByClassName('clue'); // this is live and will therefore update the array with new clue class additions
       var matches = []
+      var oldMatches = []
   
       const answertags = await tagFetching(answer);
-      //console.log(answertags)//.includes('Wine'));
+      //console.log(answertags)
   
-      guessButton.addEventListener("click", async function(event) { // when hitting submit button
-        guessButton.disabled = true;
-            guessing(guessInput,answertags,suggestions,answer,guessButton)
+    // when hitting submit button
+      guessButton.addEventListener("click", async function(event) { 
+        guessButton.disabled = true; // stops multiple clicks before guessing complete
+            guessing(guessInput,answertags,suggestions,answer,guessButton, oldMatches)
       }); 
-  
-      guessInput.addEventListener('keyup', async function(event) { // when pressing enter
+    // when pressing enter
+      guessInput.addEventListener('keyup', async function(event) { 
       if(event.keyCode ==13) {
-            event.disabled = true;
-            guessing(guessInput,answertags,suggestions,answer,guessInput,event)
-
+            event.disabled = true; 
+            guessing(guessInput,answertags,suggestions,answer,guessInput, oldMatches)
       }
-      
       })
-  
+
+      // reactivate this function with the new clue group
+      suggestions.addEventListener('mouseenter', existingClueGuessing) 
+      // guess by Clicking on connections
+      function existingClueGuessing(){
+      for(let i = 0; i < clues.length; i++){
+        clues[i].addEventListener('click', async function(event) {
+            event.disabled = true;
+            // make the valid guess input structure so guessing function can be used
+            guess = {
+                value: this.dataset.clue,
+            };
+            guessing(guess, answertags, suggestions, answer, event, oldMatches);
+            
+            
+        },);
+      }
+    }
     
   }
   
