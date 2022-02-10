@@ -9,18 +9,25 @@ html {
   h1 {
     color: #D8D8D8;
   }
+
+  .score {
+    position: absolute;
+    top: 0px;
+    right: 5%;    
+  }
   
   *, *:before, *:after {
     box-sizing: inherit;
   }
   
   input {
-    width: 100%;
+    width: 80%;
     padding: 20px;
   }
+
   
   .guess-form {
-    max-width: 400px;
+    width: 80%;
     margin: 50px auto;
   }
   
@@ -29,33 +36,34 @@ html {
     text-align: center;
     outline: 0;
     border: 10px solid #F7F7F7;
-    width: 120%;
-    left: -10%;
+    width: 80%;
+    left: 10%;
     position: relative;
     top: 10px;
     z-index: 2;
     border-radius: 5px;
-    font-size: 1rem;
+    font-size: 1.5rem;
     box-shadow: 0 0 5px rgba(0, 0, 0, 0.12), inset 0 0 2px rgba(0, 0, 0, 0.19);
   }
 
   button {
-    font-size: 1rem;
+    font-size: 1.5rem;
     background-image: linear-gradient(to top, #ee4980 0%, #e66351 100%);
     padding: 14px 32px;
-    border: none;
-    border-radius: 4px; /* rounds the button corners*/
+    border: 1px;
+    border-radius: 6px; /* rounds the button corners*/
     color: #fff;
     margin-top: 1rem;
     margin-bottom: 1rem;
+    margin-left: 10%;
     cursor: pointer;
-    position: relative;
+    position: center;
     transition: all 0.35s;
     outline:none;
   }
   
   .suggestions {
-    margin: 0;
+    margin: 2%;
     padding: 0;
     position: relative;
     
@@ -76,42 +84,38 @@ html {
   }
   
   .suggestions li:nth-child(even) {
-    transform: perspective(100px) rotateX(3deg) translateY(2px) scale(1.001);
+    transform: perspective(100px) rotateX(2deg) translateY(1px) scale(1.001);
     background: linear-gradient(to bottom,  #ffffff 0%,#EFEFEF 100%);
   }
   
   .suggestions li:nth-child(odd) {
-    transform: perspective(100px) rotateX(-3deg) translateY(3px);
+    transform: perspective(100px) rotateX(-2deg) translateY(1px);
     background: linear-gradient(to top,  #ffffff 0%,#EFEFEF 100%);
   }
 
   
   span.population {
-    font-size: 15px;
-  }
-  
-  .hl {
-    background: #ffc600;
+    font-size: 18px;
   }
 
   .clue:hover {
     cursor: pointer;
   }
 
-  .clue win {
-    background: linear-gradient(to top,  #da7878 0%,#5a269c 100%);
+  li.clue.win {
+    background: linear-gradient(to top,  #da7878 0%,#986fce 100%);
   }
 
-  .clue old {
-    background: linear-gradient(to top,  #da7878 0%,#5a269c 100%);
+  li.clue.old {
+    background: linear-gradient(to top,  #ebe2b0 0%,#d6d3cd 100%);
   }
 
 @media screen and (max-width: 480px) {
     html {
-      font-size: 1.5rem;
+      font-size: 2.5rem;
     }
     button {
-        font-size: 1.5rem;
+        font-size: 2.5rem;
     }
 
   }

@@ -50,7 +50,7 @@ async function tagFetching(word) {
           }
       
       // remove anything starting with < or [ to exclude images and  citations and other unwanted references 
-      let remove = ['[', '<', ' ', '\n', 'the', 'and', 'a', 'is', 'of', 'href', '=', ':', 'edit', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '.', 'refer', 'to', 'link', 'cite', 'sources', 'verification', 'improve this article', 'adding citations to reliable sources', 'news', 'newspapers', 'books', 'scholar', 'JSTOR', 'Learn how and when to remove this template message', 'ISBN', '^','Authority control', 'Integrated Authority File (Germany)', '(data)','ISSN','Wayback Machine','Archived']
+      let remove = ['[', '<', ' ', '\n', 'the', 'and', 'a', 'is', 'of', 'href', '=', ':', 'edit', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '.', '"The', 'In', 'The', 'With', 'with', 'refer', 'to', 'link', 'cite', 'sources', 'verification', 'improve this article', 'adding citations to reliable sources', 'news', 'newspapers', 'books', 'scholar', 'JSTOR', 'Learn how and when to remove this template message', 'ISBN', '^','Authority control', 'Integrated Authority File (Germany)', '(data)','ISSN','Wayback Machine','Archived']
       for(const r in remove) {
       allWords = arrayRemove(allWords,remove[r]); // r is index
       }
@@ -101,11 +101,13 @@ async function tagFetching(word) {
   }
 
   async function guessing(guessInput,answertags,suggestions,answer,trigger,oldMatches) {
-    // first check if they got the answer and tell them if they did
+    // increment # guesses score
     
+    // check if they got the answer and tell them if they did
     if(`${guessInput.value}`.localeCompare(`${answer}`, undefined, { sensitivity: 'base' }) == 0) {
         const winner = [`That's right, you got the answer!`, `The answer was ${answer}`, 'Congratulations, refresh the page for more trikiwiki']
         displayMatches(winner, [], suggestions, guessInput);
+        
         //do something here to change the css when you win? 
         return;
     }
@@ -123,12 +125,15 @@ async function tagFetching(word) {
         return {word: match, guess: guessInput.value};
     });
     
-    oldMatches.push(...matches2); 
+    oldMatches.unshift(...matches2); // like push but goes to start of array so that most recent guesses first
+    
     // this needs changing to make it filter out duplicates now. Right now it just sticks them at the end of the list.
     oldMatches = oldMatches.filter(function(item, pos) { // getting rid of duplicates but keeping as an array
         return oldMatches.indexOf(item.word) == pos.word;
     })
+    
     //console.log(oldMatches, oldMatches[0].guess);
+    return;
   }
 
   
@@ -139,9 +144,11 @@ async function tagFetching(word) {
       const guessButton = document.getElementById('guessButton');
       const suggestions = document.querySelector('.suggestions');
       var clues = document.getElementsByClassName('clue'); // this is live and will therefore update the array with new clue class additions
+      const numberGuesses = document.querySelector('.score');
       var matches = []
       var oldMatches = []
-  
+      let score = 0;
+    
       const answertags = await tagFetching(answer);
       //console.log(answertags)
   
@@ -149,12 +156,18 @@ async function tagFetching(word) {
       guessButton.addEventListener("click", async function(event) { 
         guessButton.disabled = true; // stops multiple clicks before guessing complete
             guessing(guessInput,answertags,suggestions,answer,guessButton, oldMatches)
+            score ++;
+            numberGuesses.innerHTML = `# guesses: ${score}`;
+        
       }); 
     // when pressing enter
       guessInput.addEventListener('keyup', async function(event) { 
       if(event.keyCode ==13) {
             event.disabled = true; 
             guessing(guessInput,answertags,suggestions,answer,guessInput, oldMatches)
+            score ++;
+            numberGuesses.innerHTML = `# guesses: ${score}`;
+    
       }
       })
 
@@ -170,6 +183,9 @@ async function tagFetching(word) {
                 value: this.dataset.clue,
             };
             guessing(guess, answertags, suggestions, answer, event, oldMatches);
+            score ++;
+            numberGuesses.innerHTML = `# guesses: ${score}`;
+        
             
             
         },);
