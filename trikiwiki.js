@@ -101,15 +101,18 @@ async function tagFetching(word) {
   }
 
   async function guessing(guessInput,answertags,suggestions,answer,trigger,oldMatches) {
-    // increment # guesses score
     
     // check if they got the answer and tell them if they did
     if(`${guessInput.value}`.localeCompare(`${answer}`, undefined, { sensitivity: 'base' }) == 0) {
-        const winner = [`That's right, you got the answer!`, `The answer was ${answer}`, 'Congratulations, refresh the page for more trikiwiki']
+        const winner = [`That's right, you got the answer! The answer was:`, `<a>${answer}</a>`, 'Congratulations, come back tomorrow for more TrikiWiki']
         displayMatches(winner, [], suggestions, guessInput);
         
+        
         //do something here to change the css when you win? 
-        return;
+        // set win boolean to true
+        
+        return true;
+        
     }
     const guessTags = await tagFetching(guessInput.value)
     var matches = await findMatches(answertags,guessTags)
@@ -123,6 +126,7 @@ async function tagFetching(word) {
     //first make a new array with key values for word and guess so that the guess can be remembered
     const matches2 = matches.map(match => {
         return {word: match, guess: guessInput.value};
+    return false;    
     });
     
     oldMatches.unshift(...matches2); // like push but goes to start of array so that most recent guesses first
@@ -133,7 +137,39 @@ async function tagFetching(word) {
     })
     
     //console.log(oldMatches, oldMatches[0].guess);
-    return;
+    return false;
+  }
+
+  function updatescore(score, numberGuesses){
+    score ++;
+    numberGuesses.innerHTML = `# guesses: ${score}`;
+    return score;
+  }
+
+  function revealAnswer(answer,suggestions, oldMatches){
+    let reveal = false;
+    reveal = window.confirm("Give up and see the answer?")
+    
+    if(!reveal){return};
+    const loser = [`The answer was ${answer}`, 'Better luck next time!']
+    displayMatches(loser, oldMatches, suggestions, {value: 'None'});
+    var gameOverEvent = new Event('game_over');
+    window.dispatchEvent(gameOverEvent);
+  }
+
+  function saveScore(score, win, scoreRecord) {
+    console.log(win);
+    const d = new Date();
+    const todaysResult = {
+      'wongame': win,
+      'guesses': score,
+      'day': d.getDate(),
+      'month': 1 + d.getMonth(), // january is month 0
+      'year': 1900 + d.getYear(),  // from 1900
+    };
+    
+    scoreRecord.push(todaysResult);
+    localStorage.setItem('scoreRecord', JSON.stringify(scoreRecord));
   }
 
   
@@ -142,35 +178,53 @@ async function tagFetching(word) {
       //console.log(answer)
       const guessInput = document.querySelector('.guess');
       const guessButton = document.getElementById('guessButton');
+      const answerButton = document.getElementById('revealAnswerButton')
       const suggestions = document.querySelector('.suggestions');
       var clues = document.getElementsByClassName('clue'); // this is live and will therefore update the array with new clue class additions
       const numberGuesses = document.querySelector('.score');
       var matches = []
       var oldMatches = []
       let score = 0;
+      var scoreRecord = JSON.parse(localStorage.getItem('scoreRecord')) || []; // if no score record in local storage returns empty array
+      let win = false;
     
       const answertags = await tagFetching(answer);
       //console.log(answertags)
-  
+
+      window.addEventListener('game_over', function(){
+        console.log('gameooooverrr')
+        saveScore(score, win, scoreRecord)
+      });
+
     // when hitting submit button
       guessButton.addEventListener("click", async function(event) { 
         guessButton.disabled = true; // stops multiple clicks before guessing complete
-            guessing(guessInput,answertags,suggestions,answer,guessButton, oldMatches)
-            score ++;
-            numberGuesses.innerHTML = `# guesses: ${score}`;
+            win = await guessing(guessInput,answertags,suggestions,answer,guessButton, oldMatches)
+            score = updatescore(score, numberGuesses);  
+            guessInput.value = ''; // clear the input field
+            console.log(win);
+            if(win){
+              var gameOverEvent = new Event('game_over');
+              window.dispatchEvent(gameOverEvent)
+            };
         
       }); 
     // when pressing enter
       guessInput.addEventListener('keyup', async function(event) { 
       if(event.keyCode ==13) {
             event.disabled = true; 
-            guessing(guessInput,answertags,suggestions,answer,guessInput, oldMatches)
-            score ++;
-            numberGuesses.innerHTML = `# guesses: ${score}`;
-    
+            win, gameOverEvent = await guessing(guessInput,answertags,suggestions,answer,guessInput, oldMatches)
+            score = updatescore(score, numberGuesses);
+            guessInput.value = '';
+            if(win){
+              var gameOverEvent = new Event('game_over');
+              window.dispatchEvent(gameOverEvent)
+            };
+            
       }
       })
 
+      // guess by Clicking on connections (first needs the clue group updating)
       // reactivate this function with the new clue group
       suggestions.addEventListener('mouseenter', existingClueGuessing) 
       // guess by Clicking on connections
@@ -182,15 +236,22 @@ async function tagFetching(word) {
             guess = {
                 value: this.dataset.clue,
             };
-            guessing(guess, answertags, suggestions, answer, event, oldMatches);
-            score ++;
-            numberGuesses.innerHTML = `# guesses: ${score}`;
-        
-            
+            win, gameOverEvent = await guessing(guess, answertags, suggestions, answer, event, oldMatches);
+            score = updatescore(score, numberGuesses);
+            if(win){
+              var gameOverEvent = new Event('game_over');
+              window.dispatchEvent(gameOverEvent)
+            };
             
         },);
       }
     }
+
+    answerButton.addEventListener('click', function(event){
+      event.disabled = true;  
+      revealAnswer(answer,suggestions,oldMatches);
+      
+    });
     
   }
   

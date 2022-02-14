@@ -2,7 +2,7 @@ html {
     box-sizing: border-box;
     background: #132e61;
     font-family: Georgia, 'Times New Roman', Times, serif;
-    font-size: 20px;
+    font-size: 24px;
     font-weight: 200;
   }
 
@@ -61,6 +61,11 @@ html {
     transition: all 0.35s;
     outline:none;
   }
+
+  #revealAnswerButton {
+    position: absolute;
+    right: 10%;
+  }
   
   .suggestions {
     margin: 2%;
@@ -80,7 +85,7 @@ html {
     display: flex;
     justify-content: space-between;
     text-align: left;
-    text-transform: capitalize;
+    /*text-transform: capitalize;*/
   }
   
   .suggestions li:nth-child(even) {
@@ -93,9 +98,13 @@ html {
     background: linear-gradient(to top,  #ffffff 0%,#EFEFEF 100%);
   }
 
-  
-  span.population {
-    font-size: 18px;
+  .suggestions span {
+    color: blue;
+  }
+
+  .suggestions a {
+    color: green;
+    font-size: 28px;
   }
 
   .clue:hover {
