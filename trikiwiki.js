@@ -3,7 +3,7 @@ async function answerFetching() {
     const response = await fetch(url);
     const todaysanswer = await response.json();
     //console.log(todaysanswer)
-    console.log('answer recieved')
+    console.log('answer recieved');
     return todaysanswer
 }
 
@@ -31,6 +31,7 @@ async function tagFetching(word) {
     for(var i=0, max=links.length; i<max; i++) {
         tags.push(links[i].innerHTML); 
     }
+    
     // gets all the main text content on the page
     /*for(var i=0, max=texts.length; i<max; i++) {
     tags.push(texts[i].innerHTML); 
@@ -46,15 +47,16 @@ async function tagFetching(word) {
       //console.log(tags)
       //split everything into individual words
       for(t in tags){
-          allWords.push(...tags[t].split(/(\s+)/));
+          //allWords.push(...tags[t].split(/(\s+)/)); // splits at white spaces (space, tab, etc)
+          allWords.push(tags[t]); // decided to leave in the full html text because sometimes context is lost when it splits things
           }
       
       // remove anything starting with < or [ to exclude images and  citations and other unwanted references 
-      let remove = ['[', '<', ' ', '\n', 'the', 'and', 'a', 'is', 'of', 'href', '=', ':', 'edit', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '.', '"The', 'In', 'The', 'With', 'with', 'refer', 'to', 'link', 'cite', 'sources', 'verification', 'improve this article', 'adding citations to reliable sources', 'news', 'newspapers', 'books', 'scholar', 'JSTOR', 'Learn how and when to remove this template message', 'ISBN', '^','Authority control', 'Integrated Authority File (Germany)', '(data)','ISSN','Wayback Machine','Archived']
+      let remove = ['[', '<', '\n', 'the', 'and', 'is', 'of', 'href', '=', ':', 'edit', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '.', '"The', 'In', 'The', 'With', 'with', 'refer', 'link', 'cite', 'sources', 'verification', 'improve this article', 'adding citations to reliable sources', 'newspapers', 'books', 'scholar', 'JSTOR', 'Learn how and when to remove this template message', 'ISBN', '^','Authority control', 'Integrated Authority File (Germany)', '(data)','ISSN','Wayback Machine','Archived']
       for(const r in remove) {
       allWords = arrayRemove(allWords,remove[r]); // r is index
       }
-      //console.log(allWords)
+      
       console.log('wikipedia words recieved')
       return allWords; // define the thing to be returned in the top level of the function and return in it too ;)
   }
@@ -71,7 +73,7 @@ async function tagFetching(word) {
   function findMatches(array1, array2){
       //finding matches referenced on both pages
       const filteredArray = array1.filter(value => array2.includes(value));
-      console.log('tag matches found')
+      console.log('tag matches found');
       //console.log(filteredArray)
       return filteredArray;
   }
@@ -130,15 +132,34 @@ async function tagFetching(word) {
     });
     
     oldMatches.unshift(...matches2); // like push but goes to start of array so that most recent guesses first
-    
-    // this needs changing to make it filter out duplicates now. Right now it just sticks them at the end of the list.
-    oldMatches = oldMatches.filter(function(item, pos) { // getting rid of duplicates but keeping as an array
-        return oldMatches.indexOf(item.word) == pos.word;
-    })
+    console.log(oldMatches);
+
+    // group duplicate words together so that multiple guesses are shown
+    //oldMatches = oldMatches.filter(function(item, pos) { // getting rid of duplicates but keeping as an array
+    //    return oldMatches.indexOf(item.word) == pos.word;
+    //})
+    oldMatches = filterOldMatches(oldMatches);
     
     //console.log(oldMatches, oldMatches[0].guess);
     return false;
   }
+
+  function filterOldMatches(matches){
+    for(let j = 0; j<matches.length; j++) {
+      for(let i = matches.length-1; i>=0; i--){
+        if(i == j){continue;} // don't compare same indexes
+        if(matches[j].word == matches[i].word){
+          console.log(matches[j], matches[i]);
+          if(!matches[j].guess.includes(matches[i].guess)){ // if the guess is not the same
+            matches[j].guess = matches[j].guess + ', ' + matches[i].guess;}
+            matches.splice(i,1); // remove the duplicate
+            console.log(`remove`)    
+        } 
+      }
+    }; 
+  return matches;
+  }
+    //copies = copies.filter(copy => copy.word == matches[i].word)
 
   function updatescore(score, numberGuesses){
     score ++;
