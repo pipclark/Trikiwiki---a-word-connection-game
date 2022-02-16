@@ -152,8 +152,7 @@ async function tagFetching(word) {
           console.log(matches[j], matches[i]);
           if(!matches[j].guess.includes(matches[i].guess)){ // if the guess is not the same
             matches[j].guess = matches[j].guess + ', ' + matches[i].guess;}
-            matches.splice(i,1); // remove the duplicate
-            console.log(`remove`)    
+            matches.splice(i,1); // remove the duplicate   
         } 
       }
     }; 
@@ -186,11 +185,107 @@ async function tagFetching(word) {
       'guesses': score,
       'day': d.getDate(),
       'month': 1 + d.getMonth(), // january is month 0
-      'year': 1900 + d.getYear(),  // from 1900
+      'year': -100 + d.getYear(),  // from 1900
     };
     
     scoreRecord.push(todaysResult);
     localStorage.setItem('scoreRecord', JSON.stringify(scoreRecord));
+  }
+
+  function displayStats(scoreRecord){
+    // reveal hidden overlay
+    const overlay = document.querySelector('.overlay');
+    overlay.style.display = 'block';
+    overlay.style.top = '15%';
+    //overlay.style.height = '80%';
+
+    // bar colours for chart
+    let barColors = [];
+    for(let i=0; i<scoreRecord.length;i++){
+      if(scoreRecord[i].wongame == false) {
+        barColors[i] = 'red';
+      } else {
+        barColors[i]= 'green';
+      }
+    }
+  
+  // extract y data and labels (x data)
+  let guessdata = []
+  scoreRecord.forEach(record => guessdata.push(record.guesses));
+  let labels = []
+  scoreRecord.forEach(record => labels.push(`${record.day}.${record.month}.${record.year}`));
+  
+  let result = 'lost';
+  if(scoreRecord.at(-1).wongame == true){result = 'won'};
+  //console.log(result, scoreRecord.at(-1))
+  
+
+  // make stats chart  
+  const data = {
+    labels: labels,
+    datasets: [{
+      label: 'Outcome',
+      data: guessdata,
+      backgroundColor: barColors,
+    }]
+  };
+  
+  
+  Chart.defaults.font.size = 24;
+
+  const config = {
+    type: 'line',
+    data: data,
+    options: {
+      responsive: true,
+      scales: {
+        y: {
+          title: {
+            display: true,
+            text: 'number of Guesses'
+          }
+        },
+        x: {
+          title: {
+            display: true,
+            text: 'Date'
+          }
+        }
+      },
+      plugins: {
+        legend: {
+            display: true,
+            title: {
+              
+            },
+            labels: {
+                text: `${result}`,
+                color: barColors.at(-1), // text color of last result
+                fillStyle: barColors.at(-1), // legend color of last result
+                backgroundColor: barColors.at(-1), // text color of last result
+            }
+        }
+      }
+    }
+  };
+  
+  const statsChart = new Chart(
+    document.getElementById('statsChart'),
+    config
+  );
+    
+  }
+
+  function reduceObjectArray(objArray,allowedProperty) {
+    const allKeys = Object.keys(objArray);
+    const result = allKeys.reduce((next, key) => {
+    if (allowedProperty.includes(key)) {
+      return { ...next, [key]: objArray[key] };
+    } else {
+      return next;
+    }
+  }, {});
+  return objArray;
   }
 
   
@@ -201,6 +296,7 @@ async function tagFetching(word) {
       const guessButton = document.getElementById('guessButton');
       const answerButton = document.getElementById('revealAnswerButton')
       const suggestions = document.querySelector('.suggestions');
+      const statsButton = document.getElementById('seeStats');
       var clues = document.getElementsByClassName('clue'); // this is live and will therefore update the array with new clue class additions
       const numberGuesses = document.querySelector('.score');
       var matches = []
@@ -208,13 +304,21 @@ async function tagFetching(word) {
       let score = 0;
       var scoreRecord = JSON.parse(localStorage.getItem('scoreRecord')) || []; // if no score record in local storage returns empty array
       let win = false;
+      
     
       const answertags = await tagFetching(answer);
       //console.log(answertags)
 
+      //guessButton.addEventListener('mouseenter',displayStats(scoreRecord));
+
       window.addEventListener('game_over', function(){
         console.log('gameooooverrr')
         saveScore(score, win, scoreRecord)
+        setTimeout(() => {displayStats(scoreRecord)},3000); // stats pop up after 3s from winning
+      });
+
+      statsButton.addEventListener('click', function() {
+        displayStats(scoreRecord);
       });
 
     // when hitting submit button
@@ -223,7 +327,7 @@ async function tagFetching(word) {
             win = await guessing(guessInput,answertags,suggestions,answer,guessButton, oldMatches)
             score = updatescore(score, numberGuesses);  
             guessInput.value = ''; // clear the input field
-            console.log(win);
+            //console.log(win);
             if(win){
               var gameOverEvent = new Event('game_over');
               window.dispatchEvent(gameOverEvent)
@@ -234,7 +338,7 @@ async function tagFetching(word) {
       guessInput.addEventListener('keyup', async function(event) { 
       if(event.keyCode ==13) {
             event.disabled = true; 
-            win, gameOverEvent = await guessing(guessInput,answertags,suggestions,answer,guessInput, oldMatches)
+            win = await guessing(guessInput,answertags,suggestions,answer,guessInput, oldMatches)
             score = updatescore(score, numberGuesses);
             guessInput.value = '';
             if(win){
@@ -257,7 +361,7 @@ async function tagFetching(word) {
             guess = {
                 value: this.dataset.clue,
             };
-            win, gameOverEvent = await guessing(guess, answertags, suggestions, answer, event, oldMatches);
+            win = await guessing(guess, answertags, suggestions, answer, event, oldMatches);
             score = updatescore(score, numberGuesses);
             if(win){
               var gameOverEvent = new Event('game_over');

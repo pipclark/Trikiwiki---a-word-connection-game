@@ -13,6 +13,8 @@
 
   gtag('config', 'G-QLD60VW0ZF');
 </script>
+<script src="https://kit.fontawesome.com/7f5a9815ed.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
   <h1 class="title">TrikiWiki</h1>
@@ -32,7 +34,18 @@
       <li>You will see if you get it right! It's Trikiwiki, so good luck.</li>
     </ul>
 
-  
+    <div class ='overlay'>
+      <div class = 'content'>
+        <h1>Statistics</h1>
+        <canvas id="statsChart"></canvas>
+        <button id ='closeButton' onclick="document.querySelector('.overlay').style.display='none';">x</button>
+          
+      </div>
+    </div>
+
+    <div>
+    <button id="seeStats">My Stats</button>
+    </div>
 
   
 <script type="text/javascript" src="trikiwiki.js"></script>

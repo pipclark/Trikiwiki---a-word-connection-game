@@ -48,7 +48,7 @@ html {
 
   button {
     font-size: 1.5rem;
-    background-image: linear-gradient(to top, #ee4980 0%, #e66351 100%);
+    background-image: linear-gradient(to bottom, #c7275c 0%, #681068 100%);
     padding: 14px 32px;
     border: 1px;
     border-radius: 6px; /* rounds the button corners*/
@@ -63,6 +63,11 @@ html {
   }
 
   #revealAnswerButton {
+    position: absolute;
+    right: 10%;
+  }
+
+  #myStats {
     position: absolute;
     right: 10%;
   }
@@ -117,6 +122,45 @@ html {
 
   li.clue.old {
     background: linear-gradient(to top,  #ebe2b0 0%,#d6d3cd 100%);
+  }
+
+  .overlay {
+    position: fixed; /* Sit on top of the page content */
+    display: none; /* Hidden by default. None means it doesn't take up space in the html doc. Hidden means it does */
+    width: 80%; /* Going to transition to 80% when displayed in js */
+    height: auto; /* "" */
+    transition: all 1s;
+    top: 0%;
+    left: 10%;
+    right: 10%;
+    bottom: 15%;
+    background-color: rgba(255, 255, 255, 0.95); 
+    color: black;
+    z-index: 2; /* Specify a stack order in case you're using a different order for other elements */
+    /*cursor: pointer; /* Add a pointer on hover */
+    
+  }
+  
+  .overlay h1 {
+    color: black;
+    text-align: center;
+  }
+
+  #closeButton {
+    font-size: 50px;
+    font-family: Helvetica, sans-serif;
+    cursor: pointer; /* Add a pointer on hover */
+    background-image: linear-gradient(to top, #3f23dd 0%, #362f74 100%);
+    position: absolute;
+    right: 2%;
+    margin-top: 0;
+    top: 2%;
+    text-align: center;
+  }
+
+  #statsChart {
+    padding: 30px;
+    font-size: 30px; /* doesn't work*/
   }
 
 @media screen and (max-width: 480px) {
