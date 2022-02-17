@@ -61,7 +61,7 @@ async function tagFetching(word) {
       allWords = arrayRemove(allWords,remove[r]); // r is index
       }
       allWords = removeEmptyStrings(allWords); // remove empty strings
-      console.log(allWords)
+      //console.log(allWords)
       
       console.log('wikipedia words recieved')
       return allWords; // define the thing to be returned in the top level of the function and return in it too ;)
