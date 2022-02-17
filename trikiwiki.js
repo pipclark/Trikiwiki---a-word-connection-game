@@ -25,12 +25,16 @@ async function tagFetching(word) {
     var links = html.getElementsByTagName('a'); // gets all the <a links which are hyperlinks
     var texts = html.getElementsByTagName('p'); // gets all the words   
     var subtitles = html.getElementsByTagName('span'); // gets all the sub titles i think            
-    var lists = html.getElementsByTagName('li'); // gets all the listed items            
+    var lists = html.getElementsByTagName('li'); // gets all the listed items     
+    
     
     // gets the highlighted word/phrase links you can click on on the page
     for(var i=0, max=links.length; i<max; i++) {
+      if(links[i].href.includes('wiki')){ // filter for links that include wiki (ie link to another wiki page)
         tags.push(links[i].innerHTML); 
+      };
     }
+
     
     // gets all the main text content on the page
     /*for(var i=0, max=texts.length; i<max; i++) {
@@ -51,11 +55,13 @@ async function tagFetching(word) {
           allWords.push(tags[t]); // decided to leave in the full html text because sometimes context is lost when it splits things
           }
       
-      // remove anything starting with < or [ to exclude images and  citations and other unwanted references 
-      let remove = ['[', '<', '\n', 'the', 'and', 'is', 'of', 'href', '=', ':', 'edit', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '.', '"The', 'In', 'The', 'With', 'with', 'refer', 'link', 'cite', 'sources', 'verification', 'improve this article', 'adding citations to reliable sources', 'newspapers', 'books', 'scholar', 'JSTOR', 'Learn how and when to remove this template message', 'ISBN', '^','Authority control', 'Integrated Authority File (Germany)', '(data)','ISSN','Wayback Machine','Archived']
+      // remove anything starting with < or [ to exclude images and  citations and other unwanted references  etc
+      let remove = ['[', '<', '\n', 'the', 'and', 'is', 'of', 'href', 'doi', '=', ':', 'edit', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '.', '"The', 'In', 'The', 'With', 'with', 'refer', 'link', 'cite', 'sources', 'verification', 'improve this article', 'adding citations to reliable sources', 'newspapers', 'books', 'scholar', 'JSTOR', 'Learn how and when to remove this template message', 'ISBN', '^','Authority control', 'Integrated Authority File (Germany)', '(data)','ISSN','Wayback Machine','Archived', 'PMID', 'ISBN']
       for(const r in remove) {
       allWords = arrayRemove(allWords,remove[r]); // r is index
       }
+      allWords = removeEmptyStrings(allWords); // remove empty strings
+      console.log(allWords)
       
       console.log('wikipedia words recieved')
       return allWords; // define the thing to be returned in the top level of the function and return in it too ;)
@@ -67,6 +73,11 @@ async function tagFetching(word) {
       return arr.filter(function(ele){ 
           return !ele.includes(values); 
       });
+  }
+
+  function removeEmptyStrings(array) {
+    var filtered = array.filter(function(entry) { return entry.trim() != ''; })
+    return filtered;
   }
   
   
