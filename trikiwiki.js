@@ -98,10 +98,17 @@ async function tagFetching(word) {
         ${clue} <span>(guess: ${guessInput.value})</span>
       </li>
         `;
-  }).join(''); // turns potential array of multiple items into one big string
-  //console.log(html)
-  
-    html += oldMatches.map(clue => {
+      }).join(''); // turns potential array of multiple items into one big string
+
+      // if no mathces found, inform the player
+      if(Object.keys(matches).length === 0){
+        html += `<li class="clue"> 
+        No links in common with the wikipedia page for "${guessInput.value}"
+      </li>`
+      }
+      
+
+      html += oldMatches.map(clue => {
           return `
           <li class="clue old" data-clue="${clue.word}"> 
           ${clue.word} <span>(old guess: ${clue.guess})</span>

@@ -41,7 +41,7 @@ html {
     position: relative;
     top: 10px;
     z-index: 2;
-    border-radius: 5px;
+    border-radius: 15px;
     font-size: 1.5rem;
     box-shadow: 0 0 5px rgba(0, 0, 0, 0.12), inset 0 0 2px rgba(0, 0, 0, 0.19);
   }
@@ -90,16 +90,17 @@ html {
     display: flex;
     justify-content: space-between;
     text-align: left;
+    border-radius: 25px;
     /*text-transform: capitalize;*/
   }
   
   .suggestions li:nth-child(even) {
-    transform: perspective(100px) rotateX(2deg) translateY(1px) scale(1.001);
+    transform: perspective(100px) rotateX(1deg) translateY(0px) scale(1.001);
     background: linear-gradient(to bottom,  #ffffff 0%,#EFEFEF 100%);
   }
   
   .suggestions li:nth-child(odd) {
-    transform: perspective(100px) rotateX(-2deg) translateY(1px);
+    transform: perspective(100px) rotateX(-1deg) translateY(0px);
     background: linear-gradient(to top,  #ffffff 0%,#EFEFEF 100%);
   }
 
